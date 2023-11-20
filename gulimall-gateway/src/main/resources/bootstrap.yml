@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: gulimall-gateway
+  cloud:
+    nacos:
+      config:
+        server-addr: 192.168.136.100:8848
+        file-extension: yaml
+        namespace: 44669538-21c4-4e25-a380-9d80bb4bf0aa

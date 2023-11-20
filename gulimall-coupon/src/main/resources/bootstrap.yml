@@ -6,3 +6,17 @@ spring:
       config:
         server-addr: 192.168.136.100:8848
         file-extension: yaml
+        namespace: b238254c-9164-49ce-bcf7-6f426e6dcc96
+        group: dev
+        ext-config[0]:
+          data-id: datasource.yaml
+          group: dev
+          refresh: true
+        ext-config[1]:
+            data-id: mybatis.yaml
+            group: dev
+            refresh: true
+        ext-config[2]:
+          data-id: other.yaml
+          group: dev
+          refresh: true
