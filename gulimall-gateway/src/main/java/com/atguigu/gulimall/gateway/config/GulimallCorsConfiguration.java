@@ -15,7 +15,7 @@ public class GulimallCorsConfiguration {
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedOrigin("*");
-        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setAllowCredentials(true); // 允许携带cookie
         source.registerCorsConfiguration("/**", corsConfiguration);
         return new CorsWebFilter(source);
     }
