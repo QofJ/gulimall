@@ -37,7 +37,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         List<CategoryEntity> entities = baseMapper.selectList(null);
 
         List<CategoryEntity> level1Menus = entities.stream().filter(categoryEntity ->
-                categoryEntity.getParentCid() == 0
+                categoryEntity.getParentCid().equals(0L)
             ).map(menu -> {
                 menu.setChildren(getChildrens(menu, entities));
                 return menu;
