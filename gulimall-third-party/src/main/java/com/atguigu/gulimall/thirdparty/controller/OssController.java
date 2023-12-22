@@ -31,7 +31,7 @@ public class OssController {
         String format = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         String dir = format + "/";
 //        String bucket = "gulimall-ihep";
-        String host = "https://" + bucket + endpoint;
+        String host = "https://" + bucket + "." + endpoint;
         Map<String, String> respMap = null;
         try {
             long expireTime = 30;
