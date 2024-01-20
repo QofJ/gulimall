@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.136.100:8848
+  application:
+    name: gulimall-search
+  elasticsearch:
+    rest:
+      http-host: 39.101.76.75
+server:
+  port: 12000
