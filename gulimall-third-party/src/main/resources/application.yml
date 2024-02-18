@@ -9,6 +9,11 @@ spring:
       oss:
         endpoint: oss-cn-beijing.aliyuncs.com
         bucket: gulimall-ihep
+      sms:
+        host: https://dfsns.market.alicloudapi.com
+        path: /data/send_sms
+        appcode: be6fd7fb1b25435899330f08105b187e
+
 server:
   port: 30000
 

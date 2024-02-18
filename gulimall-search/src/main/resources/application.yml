@@ -10,5 +10,10 @@ spring:
       http-host: 39.101.76.75
   thymeleaf:
     cache: false
+  redis:
+    host: 192.168.136.100
+    port: 6379
+  session:
+    store-type: redis
 server:
   port: 12000
