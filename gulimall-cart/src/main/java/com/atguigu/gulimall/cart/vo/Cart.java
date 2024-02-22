@@ -38,7 +38,12 @@ public class Cart {
 
     public BigDecimal getTotalAmount() {
         if (items != null && items.size() > 0) {
-            totalAmount = items.stream().map(CartItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+            totalAmount = items.stream().map(cartItem -> {
+                if (cartItem.getCheck()) {
+                    return cartItem.getTotalPrice();
+                }
+                return BigDecimal.ZERO;
+            }).reduce(BigDecimal.ZERO, BigDecimal::add);
         } else {
             totalAmount = new BigDecimal("0.00");
         }
