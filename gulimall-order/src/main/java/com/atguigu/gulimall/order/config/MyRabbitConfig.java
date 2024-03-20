@@ -34,6 +34,7 @@ public class MyRabbitConfig {
         RabbitTemplate.ReturnCallback returnCallback = new RabbitTemplate.ReturnCallback() {
             @Override
             public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingKey) {
+                // 消息丢失了
                 System.out.println("message: " + message);
                 System.out.println("replyCode: " + replyCode);
                 System.out.println("replyText: " + replyText);
