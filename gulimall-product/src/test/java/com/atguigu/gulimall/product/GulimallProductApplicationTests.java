@@ -81,4 +81,5 @@ public class GulimallProductApplicationTests {
 				.forEach(System.out::println);
 	}
 
+
 }

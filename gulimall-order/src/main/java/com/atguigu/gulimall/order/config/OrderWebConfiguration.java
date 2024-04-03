@@ -12,6 +12,8 @@ public class OrderWebConfiguration implements WebMvcConfigurer {
     private LoginUserInterceptor loginUserInterceptor;
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loginUserInterceptor).addPathPatterns("/**");
+        registry.addInterceptor(loginUserInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns("/payed/notify");
     }
 }
