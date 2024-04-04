@@ -1,5 +1,9 @@
 package com.atguigu.gulimall.seckill.service.impl;
 
+import com.alibaba.csp.sentinel.Entry;
+import com.alibaba.csp.sentinel.SphU;
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.to.mq.SeckillOrderTo;
@@ -13,6 +17,7 @@ import com.atguigu.gulimall.seckill.to.SecKillSkuRedisTo;
 import com.atguigu.gulimall.seckill.vo.SeckillSessionsWithSkus;
 import com.atguigu.gulimall.seckill.vo.SkuInfoVo;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RSemaphore;
 import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -28,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class SeckillServiceImpl implements SeckillService {
     @Autowired
@@ -55,25 +61,35 @@ public class SeckillServiceImpl implements SeckillService {
         }
     }
 
+    public List<SecKillSkuRedisTo> blockHandler(BlockException e) {
+        log.error("getCurrentSeckillSkus被限流:{}", e.getMessage());
+        return null;
+    }
+
+    @SentinelResource(value = "getCurrentSeckillSkusResource", blockHandler = "blockHandler")
     @Override
     public List<SecKillSkuRedisTo> getCurrentSeckillSkus() {
         long time = new Date().getTime();
-        Set<String> keys = redisTemplate.keys(SESSIONS_CACHE_PREFIX + "*");
-        for (String key : keys) {
-            String replace = key.replace(SESSIONS_CACHE_PREFIX, "");
-            String[] s = replace.split("_");
-            long start = Long.parseLong(s[0]);
-            long end = Long.parseLong(s[1]);
-            if (time >= start && time <= end) {
-                List<String> range = redisTemplate.opsForList().range(key, 0, -1);
-                BoundHashOperations<String, String, String> hashOps = redisTemplate.boundHashOps(SKUKILL_CACHE_PREFIX);
-                List<String> list = hashOps.multiGet(range);
-                if (list != null && list.size() > 0) {
-                    List<SecKillSkuRedisTo> collect = list.stream().map(item -> JSON.parseObject((String) item, SecKillSkuRedisTo.class)).collect(Collectors.toList());
-                    return collect;
+        try (Entry entry = SphU.entry("seckillSkus")) {
+            Set<String> keys = redisTemplate.keys(SESSIONS_CACHE_PREFIX + "*");
+            for (String key : keys) {
+                String replace = key.replace(SESSIONS_CACHE_PREFIX, "");
+                String[] s = replace.split("_");
+                long start = Long.parseLong(s[0]);
+                long end = Long.parseLong(s[1]);
+                if (time >= start && time <= end) {
+                    List<String> range = redisTemplate.opsForList().range(key, 0, -1);
+                    BoundHashOperations<String, String, String> hashOps = redisTemplate.boundHashOps(SKUKILL_CACHE_PREFIX);
+                    List<String> list = hashOps.multiGet(range);
+                    if (list != null && list.size() > 0) {
+                        List<SecKillSkuRedisTo> collect = list.stream().map(item -> JSON.parseObject((String) item, SecKillSkuRedisTo.class)).collect(Collectors.toList());
+                        return collect;
+                    }
+                    break;
                 }
-                break;
             }
+        } catch (BlockException e) {
+            log.error("getCurrentSeckillSkus被限流:{}", e.getMessage());
         }
         return null;
     }
@@ -151,6 +167,9 @@ public class SeckillServiceImpl implements SeckillService {
     }
 
     private void saveSessionInfos(List<SeckillSessionsWithSkus> sessions) {
+        if (sessions == null) {
+            return;
+        }
         sessions.forEach(session -> {
             Long startTime = session.getStartTime().getTime();
             Long endTime = session.getEndTime().getTime();
